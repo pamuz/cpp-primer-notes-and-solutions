@@ -1,0 +1,719 @@
+#+TITLE: C++ Primer Notes
+* Introduction
+This document contains a collection of notes that I took while reading
+C++ Primer, 5th edition by Stanly B. Lippman, Josée Lajoie and Barbara
+E. Moo. Accompanying this notes are a number of directories (one for
+almost every chapter) that include my solutions to some of the
+exercises encountered in the book.
+
+* READLOG
+[2017-12-01 Fri 23:17]
+
+| Date             | Page |
+|------------------+------|
+| <2017-12-29 Fri> |  366 |
+| <2017-12-31 Sun> |  468 |
+| <2018-01-01 Mon> |  506 |
+| <2018-01-02 Tue> |  527 |
+| <2018-01-03 Wed> |  531 |
+| <2018-01-04 Thu> |  562 |
+| <2018-01-05 Fri> |  608 |
+| <2018-01-06 Sat> |  629 |
+
+* Chapter 02: Variables and Base Types
+[2017-12-05 Tue 13:03]
+
+A declaration only makes the name known. A definition also sets the
+associated entity. To do a declaration that is not a definition, use
+the =extern= keyword.
+
+A scope is a part of the program in which a name has a particular
+meaning. Scopes can be nested. Inner scopes can redefine identifiers
+of the outer scopes.
+
+Funny thing, it seems that in cpp, to store the address of a thing,
+you use the ampersand symbol in the name that we want to store the
+address in, not in the object that we want the address of.
+
+#+BEGIN_EXAMPLE
+int ival = 1024;
+int &refval = ival;
+#+END_EXAMPLE
+
+Amazing enough, to get the object out of the reference we can drop the
+address of operator, I tried two ways, one by prepending * to the
+reference and one without the ampersand, they both yielded the same
+results.
+
+#+BEGIN_EXAMPLE
+std::cout << "*&refval: " << *&refval << std::endl;
+std::cout << "refval: " << refval << std::endl;
+#+END_EXAMPLE
+
+The two statements above print the same output.
+
+Use nullptr (added in the new standard) not NULL or 0.
+
+* Chapter 03: Strings, Vectors and Arrays
+[2017-12-15 Fri 21:20]
+
+I had previously seen that you could do class initialization
+by simply putting the arguments to the constructor in parenthesis
+after the type and name declaration i.e.
+
+#+BEGIN_SRC cpp
+std::string str("some string");
+#+END_SRC
+
+I now know that is what is called "direct initialization", but it is
+equivalent to a statement like.
+
+#+BEGIN_SRC cpp
+std::string str = "some string"
+#+END_SRC
+
+This is known as "copy initialize".
+
+However, this equivalence only holds when the constructors are used
+with only one argument. Should we want to initialize a variable using
+a constructor that takes more than one argument, we would have to use
+the direct initialization.
+
+
+C libraries are accesible both through their ".h" files or, the name
+of the files without the ".h" and preceded by a "c", i.e., "ctype.h"
+can be accessed as "cctype". The difference is that with the latter
+syntax, the objects in the library are exported as part of the
+std::namespace.
+
+The book first mentioned templates on the chapter on vectors. It
+states (as I correctly assumed) that templates are instructions to the
+compiler for generating classes for us, what I did not know is that
+there are also function templates.
+
+An important emphasis is put into saying that =vector= is a template,
+not a type, types generated from a =vector= must include the element
+type, i.e.  =vector<int>= is a type.
+
+I've been reading up on iterators and its all good. However, the
+following question occurred to me: ¿When using =auto= to get the type
+of the iterator, how can we get it to be const, and not have to write
+=container<type>::const_iterator=?
+
+The answer is that if the container is const, =begin()= and =end()=
+will return a const iterator, but if the container is not const, it
+will return a regular iterator. However, there are =cbegin()= and
+=cend()= methods that return the corresponding const iterator.
+
+We could do our own calculations to get the =beginp= and =endp=
+pointers to elements of an array, however the library gives us
+fucntion =begin= and =end= for this purpose, this functions take an
+array and return a pointer to the first element, and one past the last
+element, respectively.
+
+The c++ std::string has a c_str() method that returns a c-style
+string.
+
+To use a multidimensional array in a range for, the loop control
+variable for all but the innermost array must be references.
+
+* Chapter 04: Expressions
+[2017-12-22 Fri 22:37]
+
+Apparently, what I understood at casts, e.g. (int) something, is an
+old-style cast, now casts have a name and you write what you want the
+value to get casted to under brackets, e.g. static_cast<int>
+(some_long)
+
+* Chapter 06: Functions
+[2017-12-28 Thu 00:37]
+
+The `static` modifier makes it so that variables in functions don't
+get destroyed after the scope exits, but rather, when the program
+terminates.  This makes it possible to have variables that survive
+function calls and do things like count the number of times a
+function's been called.
+
+In C programmesr often use pointer parameters to access objects
+outside a function. In C++ programmers generally use reference
+parameters instead.
+
+We cannot pass an arary by value, we will always be passing a pointer
+to its first element. You could even put the size of an array that is
+a parameter in a function declaration, but it would serve for
+informative purposes only and wouldn't be enforced.
+
+Techniques used to deal with passing arrays:
+
+- If the data is suitable, use an end of data marker, like the null
+  character for char arrays or old-style string literals.
+- Pass a pointer to the beginning and the end of the array.
+- Explicitly passing a size parameter.
+  
+
+
+For variadic function where all of the parameters are of the same
+time, we can make the declaration of a function use
+=initializer_list<T>=, keep in mind that when calling, the variadic
+number of arguments must be given inside curly braces. Just like if we
+were initializing an array automatically out of a given number of
+elements.
+
+Return types can be references too.
+
+Never Return a Reference or Pointer to a Local Object since after the
+function is exited, its resources are freed.
+
+If the return type of a function is a refrence, it is an lvalue, and we could
+have a function call on the left sign of an assignment. Think of a function
+that takes a string and a index and returns a character by reference,
+we could then do something like =get_val(s, 3) = 'A'=
+
+We can also return a list of stuff in curly brackets if the return
+type accepts copy initialization like that.
+
+The c++ adds the possiblity to have trailing return types, that is
+return types that appear on the right hand side of a function declaration
+by using the following sytnax:
+
+#+BEGIN_EXAMPLE
+auto func(int i) -> int(*)[10];
+#+END_EXAMPLE
+
+A constexpr function is permitted to return a value that is not a constant
+
+A function's name is not part of its type, and therefore is not
+included when making pointers to functions.
+
+Just like with arrays, we cannot define parameters of function type
+but can have parameter that is a pointer to a function. It is a good
+idea to use decltype to create pointers to function as tha treally
+simplifies stuf.
+
+Functions are named units of computation.
+* Chapter 07: Classes
+[2017-12-29 Fri 16:24]
+
+During chapter 7, I wrote methods for a "class" called Sales_data,
+however, in its header file, Sales_data was actually implemented as a
+struct, which led me to ask what might be the difference between using
+a struct vs using a class. In my research, I found that the only
+seeming difference is that a struct has its members public by default,
+whereas a class has its members private by default. The struct is
+still used in c++ because it is desired to be able to use structs that
+where originally designed for the c language.
+
+If we do not provide a default constructor, the compiler will provide
+one for us, this is what is called a synthesized default constructor,
+and it will first attempt to use some default initializer (or default
+values) that we have for members in the class definitions, if not
+found, will default initialize those members just like it would be
+with a non-member variable. The default constructor is done for us
+only if we do not define any other constructors, it is not sufficient
+to lack the 0 parameter constructor.
+
+Once we add some constructor, the synthesized default constructor is not given
+to us, if we intend to still use the default constructor in the same way
+that its sinthesized version worked, we probably don't want to go through
+the trouble of coding what was already done automatically for us, therefore
+we can use 
+
+#+BEGIN_EXAMPLE
+Class_name() = default
+#+END_EXAMPLE
+
+To indicate that we would like to keep the synthesized one.
+
+A class can allow another class or function to access its nonpublic
+members by making that class or function a friend. A class makes a
+function its friend by including a declaration for that function
+preceded by the keyword friend
+
+We can use the =mutable= keyword to denote that a class member is to
+be modifyable even inside of const functions.
+
+If a friend function is defined inside a class body it will be
+implicitly inline.
+
+You can decide against making a class a friend, and only some of its
+methods, but then, if those methods are overloaded, you'd need to
+declare friendship with each overloaded prototype.
+
+If you use the scope operator =::= alone, you can get access to the
+outer scope. I read this on a part of the book that was talking about
+how variable resolution is done inside class methods, first the
+parameters are considered, if the parameter have the same name as some
+member, you can still access the member with =this->member_name=, same
+thing by doing =::variable_name= in case a parameter or a member is
+obscuring it.
+
+We must use the constructor initializer list to provide values for
+members that are const, reference, or of a class type that does not
+have a default constructor.
+
+Members are intialized in the order that they appear in the class
+definition, not in the order given in a constructor initializer.
+
+You can write a constructor that delegates to another constructor by
+invoking it in the class intializer section.
+
+When we have constructor with one parameter, an implicit creation is
+also created. That means that we can use an object of the type of the
+parameter that the single-parameter constructor expects, and it will
+get automatically "constructed" for us, e.g. we can use a string
+instead of an object constructed with the 1-string constructor.
+
+We can disable implicit conversions by using the keyword =explicit= in
+our constructors.
+
+We can make a member associated with a class, rathen than instances of
+the class by using the =static= keyword.
+* Chapter 08: The IO library
+[2017-12-31 Sun 00:08]
+
+In the chapter, there are mentions that there exists the io functions
+in the library prepended by a 'w' to indicate the use of wchar_t
+instead of just char. However, I wanted to try a program to see if the
+normal streams would break on reading input in spanish, but they
+didn't, then I tried to paste an input in chenese but it didn't break
+either, so far I don't know for what cases the =wchar_t= is really
+necessary.
+
+Because we can't copy the IO types, we cannot have a parameter or
+return type that is one of the stream types, although we can use
+references.
+
+Streams have a function called =.tie= that when called on another
+stream it ties them together, so that if the other one is flushed this
+one is too. The library automatically ties cout to cin for us.
+
+The only way to preserve the existing data in a file opened by an
+ofstream is to specify app or in mode explicitly.
+* Chapter 09: Containers
+[2017-12-31 Sun 10:51]
+
+Rules of thumb:
+
+- Unless you have a reason not to, use =vector=.
+- If you have lots of small elements and space matters don't use =list= or =forward_list=.
+- If the program requires random access use =vector= and =deque=.
+- If the program needs to insert or delete elements in the middle, use =list= or =forward_list=.
+- If the program needs to insert at both ends, and not in middle, use =deque=.
+
+
+It's a good idea to use operations common to both =vector= s and
+=list= s, i.e. iterators anod not subscripts, that way it is easy to
+swap them out later.
+
+The containers have, among their shared methods, a version of =begin=,
+=end=, =cbegin= and =cend= that are prepended by an 'r', this denotes
+that they return a 'reverse' iterator, capable of moving through
+elements in a backwards fashion.
+
+Rangers of iterators in c++ are left-inclusive intervals. The end
+iterator is one past the last element of the container, and therefore
+it is kind of wrong to call the iterators first and last, and not
+begin and end.
+
+There is a type =array= that pretty much gives us the functionality of
+primitive arrays but with the interfaces of the library container
+types.
+
+I was introduced to two families of functions that the containers have
+to introduce new elements into their collections: the family of
+'insert' and the family of 'emplace'. The difference between what each
+family does is that the members of the 'insert' family accept objects
+of the type that the container accepts, and copies them to their
+respective places. The emplace family takes arguments that the class
+type that they take accept, and construct the objects and then adds
+them, basically saving us from having to construct objects ourselves.
+
+I've learned that the containers also provide the member functions
+=front= and =last=. This function return references to the first and
+last element of a container (that's right, the references are returned
+directly, not a pointer which we would need to dereference as is the
+case with =begin=, =end= and the like). Furthermore, let's remember
+that the =end= variants of member functions return a pointer to one
+past the last element of a container, so dereferencing means nothing,
+=last= gets us the last element appropiately.
+
+For accessing elements, we also have the square bracket operator =[]=
+and the =at= member function. They are different since the square
+brackets can only take unsigned integers, and if a non-valid value is
+provided, i.e. a value greater than or equal to the size of the
+container, the result is undefined. The =at= member function, on the
+other hand, can accept arguments that are not unsigned integer (which
+will be useful for non sequential containers that utilize keys) and
+also, if given an incorrect value, it raises a =std::out_of_range=
+exception rather than continuing silently with undefined behaviour.
+
+It is a good idea to minimize the part of a program where a given
+iterator is used, to minimize the probability that our operations will
+render it invalid. Loops that add or remove elements from a container
+should usually ensure that the iterators are refreshed after the
+affecting operations. In particular, we should avoid storing the
+interator returned from the =end= family of functions in order to save
+computation, it is much more safer to actually call the corresponding
+=end= function each time around.
+
+The difference between a vector's capacity and its size is that its
+size denots the number of elements it already contains. The capacity
+denotes the number of elements it can contain before triggering a
+reallocation.
+
+The container =forward_list= has a different kind of member functions
+for adding and removing elements. These functions are postfixed by
+=_after=, i.e. =insert_after()=. The reason for this is that they take
+a pointer and actually insert (or erase) the element after it. The
+reason for this is that =forward_list= is a singly linked list, and in
+these kinds of lists, an element doesn't have a pointer to the
+previous elements that points to it, so it is not easy to get a hold
+of its predecessor in order to change its next reference
+accordingly. Also, there is the posibility to obtain a pointer to one
+before the first element through =before_begin= and its derivations.
+
+I've learned that the functions that convert a string into a numeric
+type can work even if the string contains non-numeric characters, but
+only when these appear after some numeric ones. In other words, if the
+string begins with non-numeric characters the conversion will fail,
+but if the non numeric characters trail, they will just be ignored.
+
+When writing the Date program (exercise 9.51) I realized I had some
+misunderstanding about a couple of concepts. Here is what I learned:
+
+- When using std::array, you indicate the size as a second argument to
+  the template angle brackest, not in square brackets after the
+  variable name.
+- When using static class members, this cannot be defined inside the
+  class. They also can't be defined in a function (I tried to define
+  them in main). It seems to me that they must be defined on the outer
+  (global) scope.
+- If you intend to call another constructor from a class constructor,
+  you must do so in the constructor intializer list, if you do it in
+  the body of the constructor all you do is create an anonymous
+  object, the member functions of the object that called the original
+  constructor do not get involved.
+  
+* Chapter 10: Algorithms
+[2018-01-01 Mon 19:10]
+
+The generic algorithms do not themselves execute container
+operations. They operate solely in terms of iterators and iterator
+operations.
+
+There are over 100+ algorithms in the standard library.
+
+Read only algorithms:
+
+- find
+- count
+- accumulate
+- equal
+- fill
+- replace
+- replace_copy
+- stable_sort
+- partition
+- find_if
+- for_each
+- transform
+  
+
+
+I learned that the =std::accumulate= function comes in the =numeric=
+header, I was including =algorithm= and spent a good 15 minutes trying
+to figure out why the compilation was failing.
+
+There is a special kind of iterator called =insert iterator=, this iterators,
+when assigned, rather than changing the contents of the object they point
+to they call some container function that inserts new elements. For example,
+the =back_inserter= iterator, when assigned, calls =push_back= under the hood.
+
+In c++, callables are all objects that can be "invoked", i.e. putting
+parenthesis after them with, optionally, some arguments. It turns out
+that not only are functions and function pointers callables, but
+classes that overload the function-call operator and lambdas
+(anonymous function) are too.
+
+A lambda looks like this:
+
+#+BEGIN_EXAMPLE
+[capture list] (parameter list) -> return type { function body }
+#+END_EXAMPLE
+
+We can omit the parameters or return type from a lambda. But must
+always put the capture list (if empty just put the brackets). Also,
+lambdas may not have defaults for their parameters.
+
+It is possible to capture variables from the enclosing scope in a
+lambda by reference just like by value. In addition, we can use the
+shortcuts =[&]= and =[=]= to include all the variables in the
+enclosing scope by reference and by value, respectively, without
+having to type each one.
+
+It is important to note also that, when capture by value is employed
+in a lambda, the copies are done at the time the lambda is defined,
+not when it is invoked.
+
+We can also return a lambda from a function. The function might
+directly return a callable object or the function might return an
+object of a class that has a callable object as a data member. If the
+function returns a lambda, then—for the same reasons that a function
+must not return a reference to a local variable—that lambda must not
+contain reference captures.
+
+It is obvious that lambdas should be used for short functions that are
+not going to be called in many places. Conversely, functions should be
+used for code that is repeated in many places, or that is too
+long. However, there is a place in which lambdas shine and that is in
+the capturing of the enclosing scope variables. A function cannot do
+that, and even if we can add parameters by reference to a function,
+this might prohibit us from using it as an argument to another
+function that does not expects its callables to have extra
+parameters. To overcome this, the =functional= header provides the
+=bind= function; it takes a callable object and generates a new
+callable object that "adapts" the parameter list of the original.
+
+#+BEGIN_EXAMPLE
+auto newCallable = bind(callable, arg_list);
+#+END_EXAMPLE
+
+The arg_list can have names of the form "_name" to indicate that it is
+a place holder, i.e., something that should not be adapted and remain
+a parameter on the callable that will be created. Note that the
+placeholders are in the =placeholders= namespace inside of the =std=
+namespace so it makes sense to use them all with something like
+
+#+BEGIN_EXAMPLE
+using namespace std::placeholders;
+#+END_EXAMPLE
+
+=bind= can also be used to rearrange or reoder the parameters of a
+callable.
+
+Once again, binds parameters are not references, if we want to pass
+something as a reference we will need to use the =ref= function,
+example:
+
+#+BEGIN_EXAMPLE
+for_each(words.begin(), words.end(), bind(print, ref(os), _1, ' '));
+#+END_EXAMPLE
+
+We can also create iterators on =istream= and =ostream=, if we default
+initialize the iterator, we obtain one that we can use as the
+off-the-end value.
+
+The =ostream= iterators are used to assign to them, where assigning
+calls the =<<= operator under the hood.
+
+The book points out that we can sort a container by passing a pair of
+reverse iterators.
+
+Reverse iterators havve a =base= member function that returns an
+iterator that points at the equivalent element, but that moves forward (or
+normally). This is useful, for example, if after obtaining an iterator
+from =find= with reverse iterator arguments we want to create a
+string, we cannot pass the reverse iterator, it needs to be a normal
+one.
+
+Iterator Categories
+| Input Iterator       | Read, but not write. single-pass increment only.     |
+| Output Iterator      | Write, but not read. single-pass increment only.     |
+| Forward Iterator     | Read and write; multi-pass, increment only           |
+| Bidirection Iterator | Read and write; multi-pass, incr and decr            |
+| Random  access       | Read and write; multi-pass, full iterator arithmetic |
+* Chapter 11: Associative containers
+[2018-01-03 Wed 08:31]
+
+The standard library provides 8 associative containers. Each of these
+containers is a =set= or a =map=, requires unique keys or allows
+multiple keys and stores the elements in order or not $2^3 = 8$.
+
+I was making the mistake of thinking that the =first= and =second=
+memebers of the maps where functions that returned the corresponding
+objects, rather, they are references to the objects themselves.
+
+For the maps, what’s important is that a type that defines a <
+operator that “behaves normally” can be used as a key. That is
+symmetry, transitivity.
+
+If we don't have the operator set up for the compatibility mentioned
+above we can pass a function that receives the key elements and
+compares them. This function is passed as an argument to the
+constructor.
+
+The associative containers define the types =key_type=, =value_type=
+and =mapped_type=. Note that for maps, =value_type= is actually the
+pair and =mapped_type= is the type of the pair's second member.
+
+I was making the mistake of thinking that in the multi maps, when you
+iterated through them, you got a pair of the key and an iterator that
+would take you through all the values mapped to that key. I was wrong.
+It turns out you get a key-value pair like you do with normal
+containers, is just that you may get key-value pairs with the same
+keys.
+
+Unlike vector or string, the type returned by the map subscript
+operator differs from the type obtained by dereferencing a map
+iterator.
+
+We are guaranteed that iterating across a multimap or multiset returns
+all the elements with a given key in sequence.
+
+Unordered associative containers have the same api as their ordered
+counterparts. In addition, they also have methods that allow us to
+manage the buckets directly (yes we are talking about the buckets
+where elements are stored, and which can store more than one element
+in case of a hash collision). These members let us inquire about the
+state of the container and force the container to reorganize itself as
+needed.
+
+- =c.bucket_count()=
+- =c.max_bucket_count()=
+- =c.bucket_size(n)=
+- =c.bucket(element)=
+- =c.load_factor()=
+- =c.max_load_factor()=
+- =c.rehash(n)=
+  
+* Chapter 12: Dynamic memory
+[2018-01-05 Fri 11:33]
+
+Smart pointers ensure that the objects to which they point are
+automatically freed when it is appropriate to do so. Their whole
+reason d'etre is to mitigate the common bugs that are introduced by
+improper management of memory.
+
+In adition to static or stack memory, every program also has a pool of
+memory that it can use. This memory is called the =free store= or
+=heap=.
+
+The keyword =new= allocates, and optionally intializes, an object in
+dynamic memory and returns a pointer to that object. Similarly,
+=delete= takes a pointer to a dynamic object, destroys the object and
+frees the associated memory.
+
+The pointers are defeined in the =memory= header.
+
+Analogous to its constructors, each class has a destructor. Just as a
+constructor controls initialization, the destructor controls what
+happens when objects of that class type are destroyed.
+
+Programs tend to use dynamic memory for one of three purposes:
+
+1. They don’t know how many objects they’ll need
+2. They don’t know the precise type of the objects they need
+3. They want to share data between several objects
+
+   
+
+Remember that copying a shared_ptr increments its reference count.
+
+If we do not initialize a smart pointer, it is initialized as a null
+pointer. We can also initialize a smart pointer from a pointer
+returned by new.
+
+Shared pointer can only coordinates between themselves if they are
+copies!  Even if they are initialized from the same pointer, they wont
+be related.  Always copy. Not even initializing from another shared
+pointers =get()= member which returns a plain pointer will work.
+
+When a function is exited, whether through normal processing or due to
+an exception, all the local objects are destroyed.
+
+By default, when a shared_ptr is destroyed, it executes delete on the
+pointer it holds. However, if we were to use, for example, a c
+library, of course the code there won't have destructors, but rather
+functions that must be called to free resources. This is no problem as
+actually we can create shared pointers and give them a second argument
+callable with our own destruction code. Yes, we must be aware of how
+to destroy the elements, but we won't need to keep track of when to
+destroy them.
+
+To use smart pointers correctly we want to adhere to these principles:
+
+- Don’t use the same built-in pointer value to initialize (or reset)
+  more than one smart pointer.
+- Don’t delete the pointer returned from get().
+- Don’t use get() to initialize or reset another smart pointer.
+- If you use a pointer returned by get(), remember that the pointer will
+  become invalid when the last corresponding smart pointer goes away.
+- If you use a smart pointer to manage a resource other than memory
+  allocated by new, remember to pass a deleter
+  
+
+
+Unique pointer has a =release()= member that returns a pointer to the
+thing, and sets the unique pointer to =nullptr=, avoiding the
+destruction of the object.
+
+A weak_ptr is a smart pointer that does not control the lifetime of
+the object to which it points. Instead, a weak_ptr points to an object
+that is managed by a shared_ptr.
+* Chapter 13: Copy control
+[2018-01-06 Sat 16:49]
+
+What we mean by copy control, are the five special member functions:
+copy contructor, copy-assignment constructor, move constructor,
+move-assignment constructor and destructor.
+
+A constructor is the copy constructor if its first parameter is a
+reference to the class type and any additional parameters have default
+values. The copy constructor should not usually be explicit.
+
+Copy intialization occurs when:
+
+- Whe define variables using an ===
+- Pass an object as an argument to a parameter of nonreference type
+- Return an object from a function that has a nonreference return type
+- Brace initialize the elements in an array or the members of an
+  aggregate class
+
+  
+
+The requirement that the copy constructor takes its class parameter as
+a reference, stems from the fact that copy initialization is used
+whenever we have a nonreference parameter. If the copy constructor
+took a nonreference parameter, it would need to copy it first, which
+would trigger an infinite loop of calls to the copy constructor.
+
+Overloaded operators are functions that have the name operator
+followed by the symbol for the operator being defined. Hence, the
+assignment operator is a function named operator=. Aside from that,
+they look like any other kind of function.
+
+Assignment operators usually return a reference to their left-hand
+operand.
+
+I was confused about when the copy assignment constructor was used,
+since the statement =SomeClass some_name = some_instance= uses the
+copy constructor, not the copy assignment. It turns out that the copy
+assignment constructor is used when we redefine a variable,
+i.e. =some_name = some_instance=, note that this variable must have
+been declared earlier and therefore we do not include the class name
+in the assignment stateent.
+
+The destructor is a member function with the name of the class
+prefixed by a tilde (~). It has no return value and takes no
+parameters:
+
+It is important to realize that the destructor body does not directly
+destroy the members themselves. Members are destroyed as part of the
+implicit destruction phase that follows the destructor body. A
+destructor body executes in addition to the memberwise destruction
+that takes place as part of destroying an object.
+
+One rule of thumb to use when you decide whether a class needs to
+define its own versions of the copy-control members is to decide first
+whether the class needs a destructor. This is because the default
+version of the destructor will not delete pointer
+members. Furtheremore, the default copy constructors will copy the
+pointers directly, not create new pointers pointing to the same object
+as the original pointer.
+
+Consider a class that gives each object its own, unique serial
+number. Such a class would need a copy constructor to generate a new,
+distinct serial number for the object being created
+
+Rule of thumb: If a class needs a copy constructor, it almost surely
+needs a copy-assignment operator

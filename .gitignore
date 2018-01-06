@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# Whitelist subdirectories
+!*/
+
+# Whitelist the following extensions
+!*.cpp
+!*.org
+!*.h
+!.gitignore
+!*/Makefile
