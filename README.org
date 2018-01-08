@@ -52,7 +52,7 @@ std::cout << "refval: " << refval << std::endl;
 
 The two statements above print the same output.
 
-Use nullptr (added in the new standard) not NULL or 0.
+Use nullptr (added in the c++11 standard), not NULL or 0.
 
 * Chapter 03: Strings, Vectors and Arrays
 [2017-12-15 Fri 21:20]
@@ -65,8 +65,8 @@ after the type and name declaration i.e.
 std::string str("some string");
 #+END_SRC
 
-I now know that is what is called "direct initialization", but it is
-equivalent to a statement like.
+I now know that is referred to as "direct initialization". What I
+didn't know is that it is equivalent to a statement like.
 
 #+BEGIN_SRC cpp
 std::string str = "some string"
@@ -79,12 +79,11 @@ with only one argument. Should we want to initialize a variable using
 a constructor that takes more than one argument, we would have to use
 the direct initialization.
 
-
 C libraries are accesible both through their ".h" files or, the name
 of the files without the ".h" and preceded by a "c", i.e., "ctype.h"
 can be accessed as "cctype". The difference is that with the latter
-syntax, the objects in the library are exported as part of the
-std::namespace.
+syntax, the objects in the library are exported as part of the =std::=
+namespace.
 
 The book first mentioned templates on the chapter on vectors. It
 states (as I correctly assumed) that templates are instructions to the
@@ -98,12 +97,11 @@ type, i.e.  =vector<int>= is a type.
 I've been reading up on iterators and its all good. However, the
 following question occurred to me: ¿When using =auto= to get the type
 of the iterator, how can we get it to be const, and not have to write
-=container<type>::const_iterator=?
-
-The answer is that if the container is const, =begin()= and =end()=
-will return a const iterator, but if the container is not const, it
-will return a regular iterator. However, there are =cbegin()= and
-=cend()= methods that return the corresponding const iterator.
+=container<type>::const_iterator=? The answer is that if the container
+is const, =begin()= and =end()= will return a const iterator, but if
+the container is not const, it will return a regular
+iterator. However, there are =cbegin()= and =cend()= methods that
+return the corresponding const iterator.
 
 We could do our own calculations to get the =beginp= and =endp=
 pointers to elements of an array, however the library gives us
@@ -111,7 +109,7 @@ fucntion =begin= and =end= for this purpose, this functions take an
 array and return a pointer to the first element, and one past the last
 element, respectively.
 
-The c++ std::string has a c_str() method that returns a c-style
+The c++ =std::string= has a =c_str()= method that returns a c-style
 string.
 
 To use a multidimensional array in a range for, the loop control
@@ -120,25 +118,25 @@ variable for all but the innermost array must be references.
 * Chapter 04: Expressions
 [2017-12-22 Fri 22:37]
 
-Apparently, what I understood at casts, e.g. (int) something, is an
-old-style cast, now casts have a name and you write what you want the
-value to get casted to under brackets, e.g. static_cast<int>
-(some_long)
+Apparently, what I understood as casts, e.g. =(int) something=, is an
+old-style cast. Nowadays casts have a name and you write what you want
+the value to get casted to under brackets, e.g. =static_cast<int>
+(a_long)=.
 
 * Chapter 06: Functions
 [2017-12-28 Thu 00:37]
 
-The `static` modifier makes it so that variables in functions don't
+The =static= modifier makes it so that variables in functions don't
 get destroyed after the scope exits, but rather, when the program
 terminates.  This makes it possible to have variables that survive
 function calls and do things like count the number of times a
-function's been called.
+function has been called.
 
-In C programmesr often use pointer parameters to access objects
+In C, programmers often use pointer parameters to access objects
 outside a function. In C++ programmers generally use reference
 parameters instead.
 
-We cannot pass an arary by value, we will always be passing a pointer
+We cannot pass an array by value, we will always be passing a pointer
 to its first element. You could even put the size of an array that is
 a parameter in a function declaration, but it would serve for
 informative purposes only and wouldn't be enforced.
@@ -149,7 +147,7 @@ Techniques used to deal with passing arrays:
   character for char arrays or old-style string literals.
 - Pass a pointer to the beginning and the end of the array.
 - Explicitly passing a size parameter.
-  
+
 
 
 For variadic function where all of the parameters are of the same
@@ -162,7 +160,7 @@ elements.
 Return types can be references too.
 
 Never Return a Reference or Pointer to a Local Object since after the
-function is exited, its resources are freed.
+function has exited, its resources are freed.
 
 If the return type of a function is a refrence, it is an lvalue, and we could
 have a function call on the left sign of an assignment. Think of a function
@@ -190,6 +188,9 @@ but can have parameter that is a pointer to a function. It is a good
 idea to use decltype to create pointers to function as tha treally
 simplifies stuf.
 
+Use pass by reference to const for class types other than iterators,
+initializer_lists or functional objects; use pass by value otherwise.
+
 Functions are named units of computation.
 * Chapter 07: Classes
 [2017-12-29 Fri 16:24]
@@ -197,11 +198,12 @@ Functions are named units of computation.
 During chapter 7, I wrote methods for a "class" called Sales_data,
 however, in its header file, Sales_data was actually implemented as a
 struct, which led me to ask what might be the difference between using
-a struct vs using a class. In my research, I found that the only
+a struct and using a class. In my research, I found that the only
 seeming difference is that a struct has its members public by default,
 whereas a class has its members private by default. The struct is
 still used in c++ because it is desired to be able to use structs that
-where originally designed for the c language.
+where originally designed for the c language (backwards
+compatibility).
 
 If we do not provide a default constructor, the compiler will provide
 one for us, this is what is called a synthesized default constructor,
@@ -212,22 +214,22 @@ with a non-member variable. The default constructor is done for us
 only if we do not define any other constructors, it is not sufficient
 to lack the 0 parameter constructor.
 
-Once we add some constructor, the synthesized default constructor is not given
-to us, if we intend to still use the default constructor in the same way
-that its sinthesized version worked, we probably don't want to go through
-the trouble of coding what was already done automatically for us, therefore
-we can use 
+Once we add some constructor, the synthesized default constructor is
+no longer given to us, if we intend to still use the default
+constructor in the same way that its sinthesized version worked, we
+probably don't want to go through the trouble of coding what was
+already done automatically for us, therefore we can use
 
 #+BEGIN_EXAMPLE
 Class_name() = default
 #+END_EXAMPLE
 
-To indicate that we would like to keep the synthesized one.
+to indicate that we would like to keep the synthesized one.
 
 A class can allow another class or function to access its nonpublic
 members by making that class or function a friend. A class makes a
 function its friend by including a declaration for that function
-preceded by the keyword friend
+preceded by the keyword friend;
 
 We can use the =mutable= keyword to denote that a class member is to
 be modifyable even inside of const functions.
@@ -243,9 +245,9 @@ If you use the scope operator =::= alone, you can get access to the
 outer scope. I read this on a part of the book that was talking about
 how variable resolution is done inside class methods, first the
 parameters are considered, if the parameter have the same name as some
-member, you can still access the member with =this->member_name=, same
-thing by doing =::variable_name= in case a parameter or a member is
-obscuring it.
+member, you can still access the member with =this->member_name=,
+similar thing for globals, by doing =::variable_name= in case a
+parameter or a member is obscuring it.
 
 We must use the constructor initializer list to provide values for
 members that are const, reference, or of a class type that does not
@@ -268,6 +270,7 @@ our constructors.
 
 We can make a member associated with a class, rathen than instances of
 the class by using the =static= keyword.
+
 * Chapter 08: The IO library
 [2017-12-31 Sun 00:08]
 
@@ -283,34 +286,38 @@ Because we can't copy the IO types, we cannot have a parameter or
 return type that is one of the stream types, although we can use
 references.
 
-Streams have a function called =.tie= that when called on another
-stream it ties them together, so that if the other one is flushed this
-one is too. The library automatically ties cout to cin for us.
+Streams have a function called =.tie= that, when called on another
+stream, it ties them together, so that if the one is flushed the other
+is flushed too. The library automatically ties cout to cin for us.
 
 The only way to preserve the existing data in a file opened by an
-ofstream is to specify app or in mode explicitly.
+ofstream is to specify /app/ or /in/ mode explicitly.
+
 * Chapter 09: Containers
 [2017-12-31 Sun 10:51]
 
 Rules of thumb:
 
 - Unless you have a reason not to, use =vector=.
-- If you have lots of small elements and space matters don't use =list= or =forward_list=.
+- If you have lots of small elements and space matters don't use
+  =list= or =forward_list=.
 - If the program requires random access use =vector= and =deque=.
-- If the program needs to insert or delete elements in the middle, use =list= or =forward_list=.
-- If the program needs to insert at both ends, and not in middle, use =deque=.
+- If the program needs to insert or delete elements in the middle, use
+  =list= or =forward_list=.
+- If the program needs to insert at both ends, and not in middle, use
+  =deque=.
 
 
 It's a good idea to use operations common to both =vector= s and
-=list= s, i.e. iterators anod not subscripts, that way it is easy to
-swap them out later.
+=list= s, i.e. iterators, not subscripts, that way it is easy to
+change the container type being used down the road.
 
 The containers have, among their shared methods, a version of =begin=,
 =end=, =cbegin= and =cend= that are prepended by an 'r', this denotes
 that they return a 'reverse' iterator, capable of moving through
 elements in a backwards fashion.
 
-Rangers of iterators in c++ are left-inclusive intervals. The end
+Ranges of iterators in c++ are left-inclusive intervals. The end
 iterator is one past the last element of the container, and therefore
 it is kind of wrong to call the iterators first and last, and not
 begin and end.
@@ -324,9 +331,9 @@ to introduce new elements into their collections: the family of
 'insert' and the family of 'emplace'. The difference between what each
 family does is that the members of the 'insert' family accept objects
 of the type that the container accepts, and copies them to their
-respective places. The emplace family takes arguments that the class
-type that they take accept, and construct the objects and then adds
-them, basically saving us from having to construct objects ourselves.
+respective places. The emplace family take the constructor arguments
+of the type they accept, construct the objects and then adds them,
+basically saving us from having to construct objects ourselves.
 
 I've learned that the containers also provide the member functions
 =front= and =last=. This function return references to the first and
@@ -373,17 +380,18 @@ accordingly. Also, there is the posibility to obtain a pointer to one
 before the first element through =before_begin= and its derivations.
 
 I've learned that the functions that convert a string into a numeric
-type can work even if the string contains non-numeric characters, but
-only when these appear after some numeric ones. In other words, if the
-string begins with non-numeric characters the conversion will fail,
-but if the non numeric characters trail, they will just be ignored.
+type, i.e. =stof()=, can work even if the string contains non-numeric
+characters, but only when these appear after some numeric ones. In
+other words, if the string begins with non-numeric characters the
+conversion will fail, but if the non numeric characters trail, they
+will just be ignored.
 
 When writing the Date program (exercise 9.51) I realized I had some
-misunderstanding about a couple of concepts. Here is what I learned:
+misunderstandings about a couple of concepts. Here is what I learned:
 
-- When using std::array, you indicate the size as a second argument to
-  the template angle brackest, not in square brackets after the
-  variable name.
+- When using =std::array=, you indicate the size as a second argument
+  to the template angle brackest, not in square brackets after the
+  variable name as you would with a primitive array.
 - When using static class members, this cannot be defined inside the
   class. They also can't be defined in a function (I tried to define
   them in main). It seems to me that they must be defined on the outer
@@ -403,7 +411,7 @@ operations.
 
 There are over 100+ algorithms in the standard library.
 
-Read only algorithms:
+A few algorithms:
 
 - find
 - count
@@ -426,10 +434,10 @@ to figure out why the compilation was failing.
 
 There is a special kind of iterator called =insert iterator=, this iterators,
 when assigned, rather than changing the contents of the object they point
-to they call some container function that inserts new elements. For example,
+to, they call some container function that inserts new elements. For example,
 the =back_inserter= iterator, when assigned, calls =push_back= under the hood.
 
-In c++, callables are all objects that can be "invoked", i.e. putting
+In c++, callables are objects that can be "invoked", i.e. putting
 parenthesis after them with, optionally, some arguments. It turns out
 that not only are functions and function pointers callables, but
 classes that overload the function-call operator and lambdas
@@ -465,7 +473,7 @@ contain reference captures.
 It is obvious that lambdas should be used for short functions that are
 not going to be called in many places. Conversely, functions should be
 used for code that is repeated in many places, or that is too
-long. However, there is a place in which lambdas shine and that is in
+long. However, there is a place in which lambdas shine, and that is in
 the capturing of the enclosing scope variables. A function cannot do
 that, and even if we can add parameters by reference to a function,
 this might prohibit us from using it as an argument to another
@@ -503,13 +511,13 @@ We can also create iterators on =istream= and =ostream=, if we default
 initialize the iterator, we obtain one that we can use as the
 off-the-end value.
 
-The =ostream= iterators are used to assign to them, where assigning
-calls the =<<= operator under the hood.
+The =ostream= iterators are used to assign to them, where the ===
+operator calls the =<<= operator under the hood.
 
 The book points out that we can sort a container by passing a pair of
 reverse iterators.
 
-Reverse iterators havve a =base= member function that returns an
+Reverse iterators have a =base= member function that returns an
 iterator that points at the equivalent element, but that moves forward (or
 normally). This is useful, for example, if after obtaining an iterator
 from =find= with reverse iterator arguments we want to create a
@@ -522,6 +530,7 @@ Iterator Categories
 | Forward Iterator     | Read and write; multi-pass, increment only           |
 | Bidirection Iterator | Read and write; multi-pass, incr and decr            |
 | Random  access       | Read and write; multi-pass, full iterator arithmetic |
+
 * Chapter 11: Associative containers
 [2018-01-03 Wed 08:31]
 
@@ -534,8 +543,8 @@ memebers of the maps where functions that returned the corresponding
 objects, rather, they are references to the objects themselves.
 
 For the maps, what’s important is that a type that defines a <
-operator that “behaves normally” can be used as a key. That is
-symmetry, transitivity.
+operator that “behaves normally” can be used as a key. That is if it
+upholds the properites of symmetry and transitivity.
 
 If we don't have the operator set up for the compatibility mentioned
 above we can pass a function that receives the key elements and
@@ -593,7 +602,7 @@ dynamic memory and returns a pointer to that object. Similarly,
 =delete= takes a pointer to a dynamic object, destroys the object and
 frees the associated memory.
 
-The pointers are defeined in the =memory= header.
+The smart pointers are defeined in the =memory= header.
 
 Analogous to its constructors, each class has a destructor. Just as a
 constructor controls initialization, the destructor controls what
@@ -613,12 +622,12 @@ If we do not initialize a smart pointer, it is initialized as a null
 pointer. We can also initialize a smart pointer from a pointer
 returned by new.
 
-Shared pointer can only coordinates between themselves if they are
+Shared pointers can only coordinate between themselves if they are
 copies!  Even if they are initialized from the same pointer, they wont
 be related.  Always copy. Not even initializing from another shared
 pointers =get()= member which returns a plain pointer will work.
 
-When a function is exited, whether through normal processing or due to
+When a function exits, whether through normal processing or due to
 an exception, all the local objects are destroyed.
 
 By default, when a shared_ptr is destroyed, it executes delete on the
@@ -626,9 +635,9 @@ pointer it holds. However, if we were to use, for example, a c
 library, of course the code there won't have destructors, but rather
 functions that must be called to free resources. This is no problem as
 actually we can create shared pointers and give them a second argument
-callable with our own destruction code. Yes, we must be aware of how
-to destroy the elements, but we won't need to keep track of when to
-destroy them.
+that is callable with our own destruction code. Yes, we must be aware
+of how to destroy the elements, but we won't need to keep track of
+when to destroy them.
 
 To use smart pointers correctly we want to adhere to these principles:
 
@@ -639,7 +648,7 @@ To use smart pointers correctly we want to adhere to these principles:
 - If you use a pointer returned by get(), remember that the pointer will
   become invalid when the last corresponding smart pointer goes away.
 - If you use a smart pointer to manage a resource other than memory
-  allocated by new, remember to pass a deleter
+  allocated by new, remember to pass a deleter callable.
   
 
 
@@ -650,6 +659,7 @@ destruction of the object.
 A weak_ptr is a smart pointer that does not control the lifetime of
 the object to which it points. Instead, a weak_ptr points to an object
 that is managed by a shared_ptr.
+
 * Chapter 13: Copy control
 [2018-01-06 Sat 16:49]
 
@@ -691,11 +701,11 @@ copy constructor, not the copy assignment. It turns out that the copy
 assignment constructor is used when we redefine a variable,
 i.e. =some_name = some_instance=, note that this variable must have
 been declared earlier and therefore we do not include the class name
-in the assignment stateent.
+in the assignment statement.
 
 The destructor is a member function with the name of the class
 prefixed by a tilde (~). It has no return value and takes no
-parameters:
+parameters.
 
 It is important to realize that the destructor body does not directly
 destroy the members themselves. Members are destroyed as part of the
