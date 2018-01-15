@@ -19,6 +19,8 @@ exercises encountered in the book.
 | <2018-01-04 Thu> |  562 |
 | <2018-01-05 Fri> |  608 |
 | <2018-01-06 Sat> |  629 |
+| <2018-01-08 Mon> |  645 |
+| <2018-01-14 Sun> |  675 |
 
 * Chapter 02: Variables and Base Types
 [2017-12-05 Tue 13:03]
@@ -673,7 +675,7 @@ values. The copy constructor should not usually be explicit.
 
 Copy intialization occurs when:
 
-- Whe define variables using an ===
+- When we define variables using an equal sign (===)
 - Pass an object as an argument to a parameter of nonreference type
 - Return an object from a function that has a nonreference return type
 - Brace initialize the elements in an array or the members of an
@@ -683,9 +685,10 @@ Copy intialization occurs when:
 
 The requirement that the copy constructor takes its class parameter as
 a reference, stems from the fact that copy initialization is used
-whenever we have a nonreference parameter. If the copy constructor
-took a nonreference parameter, it would need to copy it first, which
-would trigger an infinite loop of calls to the copy constructor.
+whenever we have a nonreference parameter in a callable. If the copy
+constructor took a nonreference parameter, it would need to copy it
+first, which would trigger an infinite loop of calls to the copy
+constructor.
 
 Overloaded operators are functions that have the name operator
 followed by the symbol for the operator being defined. Hence, the
@@ -727,3 +730,106 @@ distinct serial number for the object being created
 
 Rule of thumb: If a class needs a copy constructor, it almost surely
 needs a copy-assignment operator
+
+A deleted function is one that is declared but may not be used in any
+other way. We indicate that we want to define a function as deleted by
+following its parameter list with == delete=.
+
+Classes that want to prevent copying should define their copy
+constructor and copy-assignment operators using = delete rather than
+making those members private.
+
+Assignment operators must work correctly if an object is assigned to
+itself. Be careful about deleting pointers.
+
+A good pattern to use when you write an assignment operator is to
+first copy the right-hand operand into a local temporary. After the
+copy is done, it is safe to destroy the existing members of the
+left-hand operand. Once the left- hand operand is destroyed, copy the
+data from the temporary into the members of the left-hand operand.
+
+It is in our best interest, specially if we intend to use a class in
+algorithms that reorder elements to implement a =swap= method to
+interchange two objects. This can bring about improved efficiency as
+we can be smart about how we do it. For example, if our class only
+have a string pointer member, then we should exchange the string
+pointers, instead of creating new objects that are copies and
+assigning them to their counterparts.
+
+There is something about swap that we must be careful, in our own
+implementations of swap functions we must be careful to use the
+following pattern:
+
+#+BEGIN_SRC cpp
+void swap(Foo &lhs, Foo &rhs)
+{
+  using std::swap;
+  swap(lhs.h, rhs.h); // uses the HasPtr version of swap
+                      // swap other members of type Foo
+}
+#+END_SRC
+
+This is because if classes define a =swap= member function, that is
+more specialized and should be used instead of the =std::swap= generic
+function. By using this pattern, if the class has defined its own
+swap, it will win during method resoultion, otherwise, the generic
+version will be used.
+
+Classes that define swap often use swap to define their assignment
+operator. These operators use a technique known as copy and swap. This
+technique swaps the left- hand operand with a copy of the right-hand
+operand.
+
+The copy-assignment operator often does the same work as is needed in
+the copy constructor and destructor. In such cases, the common work
+should be put in private utility functions.
+
+I've learned that a lambda can only be converted to a function pointer
+if it does not capture.
+
+The allocators have a construct and destruct memebers that can
+actually make the elements for us (they also take, as their first
+parameter, the pointer of where to put them).
+
+TODO: Need to learn more about allocators uninitiallized_copy
+
+Move constructors typically operate by “moving” resources from the
+given object to the object being constructed. There also is a generic
+=move= function in the =utility= header.
+
+The library containers, string, and shared_ptr classes support move as
+well as copy. The IO and unique_ptr classes can be moved but not
+copied.
+
+To support move operations, the new standard introduced a new kind of
+reference, an rvalue reference. An rvalue reference is obtained by
+using a double ampersand instead of only one, i.e. =&&=.
+
+Functions that return a nonreference type, along with the arithmetic,
+relational, bitwise, and postfix increment/decrement operators, all
+yield rvalues. We cannot bind an lvalue reference to these
+expressions, but we can bind either an lvalue reference to const or an
+rvalue reference to such expressions.
+
+Rvalue references refer to objects that are about to be
+destroyed. Hence, we can “steal” state from an object bound to an
+rvalue reference.
+
+Although we cannot directly bind an rvalue reference to an lvalue, we
+can explicitly cast an lvalue to its corresponding rvalue reference
+type. We can also obtain an rvalue reference bound to an lvalue by
+calling a new library function named move, which is defined in the
+utility header. The move function uses facilities that return an
+rvalue reference to its given object.
+
+Move constructors and move assignment operators that cannot throw
+exceptions should be marked as =noexcept=.
+
+A Moved-from Object Must Be Destructible
+
+The move operations are not synthesized if they would otherwise be
+defined as deleted.
+
+If a class has a usable copy constructor and no move constructor,
+objects will be “moved” by the copy constructor. Similarly for the
+copy-assignment operator and move-assignment.
