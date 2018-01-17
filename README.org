@@ -20,7 +20,8 @@ exercises encountered in the book.
 | <2018-01-05 Fri> |  608 |
 | <2018-01-06 Sat> |  629 |
 | <2018-01-08 Mon> |  645 |
-| <2018-01-14 Sun> |  675 |
+| <2018-01-14 Sun> |  682 |
+| <2018-01-15 Mon> |  694 |
 
 * Chapter 02: Variables and Base Types
 [2017-12-05 Tue 13:03]
@@ -31,9 +32,9 @@ the =extern= keyword.
 
 A scope is a part of the program in which a name has a particular
 meaning. Scopes can be nested. Inner scopes can redefine identifiers
-of the outer scopes.
+in the outer scopes.
 
-Funny thing, it seems that in cpp, to store the address of a thing,
+Funny thing, it seems that in c++, to store the address of a thing,
 you use the ampersand symbol in the name that we want to store the
 address in, not in the object that we want the address of.
 
@@ -42,8 +43,8 @@ int ival = 1024;
 int &refval = ival;
 #+END_EXAMPLE
 
-Amazing enough, to get the object out of the reference we can drop the
-address of operator, I tried two ways, one by prepending * to the
+Amazingly enough, to get the object out of the reference we can drop
+the address of operator, I tried two ways, one by prepending * to the
 reference and one without the ampersand, they both yielded the same
 results.
 
@@ -54,7 +55,8 @@ std::cout << "refval: " << refval << std::endl;
 
 The two statements above print the same output.
 
-Use nullptr (added in the c++11 standard), not NULL or 0.
+It is recommended ot use nullptr (added in the c++11 standard), not
+NULL or 0.
 
 * Chapter 03: Strings, Vectors and Arrays
 [2017-12-15 Fri 21:20]
@@ -136,7 +138,7 @@ function has been called.
 
 In C, programmers often use pointer parameters to access objects
 outside a function. In C++ programmers generally use reference
-parameters instead.
+parameters for that purpose.
 
 We cannot pass an array by value, we will always be passing a pointer
 to its first element. You could even put the size of an array that is
@@ -170,7 +172,8 @@ that takes a string and a index and returns a character by reference,
 we could then do something like =get_val(s, 3) = 'A'=
 
 We can also return a list of stuff in curly brackets if the return
-type accepts copy initialization like that.
+type accepts copy initialization (also works with =std::pair=) like
+that.
 
 The c++ adds the possiblity to have trailing return types, that is
 return types that appear on the right hand side of a function declaration
@@ -180,7 +183,8 @@ by using the following sytnax:
 auto func(int i) -> int(*)[10];
 #+END_EXAMPLE
 
-A constexpr function is permitted to return a value that is not a constant
+A constexpr function is permitted to return a value that is not a
+constant.
 
 A function's name is not part of its type, and therefore is not
 included when making pointers to functions.
@@ -627,7 +631,7 @@ returned by new.
 Shared pointers can only coordinate between themselves if they are
 copies!  Even if they are initialized from the same pointer, they wont
 be related.  Always copy. Not even initializing from another shared
-pointers =get()= member which returns a plain pointer will work.
+pointers =get()= member, which returns a plain pointer, will work.
 
 When a function exits, whether through normal processing or due to
 an exception, all the local objects are destroyed.
@@ -656,7 +660,7 @@ To use smart pointers correctly we want to adhere to these principles:
 
 Unique pointer has a =release()= member that returns a pointer to the
 thing, and sets the unique pointer to =nullptr=, avoiding the
-destruction of the object.
+destruction of the object. Also a =reset()= member.
 
 A weak_ptr is a smart pointer that does not control the lifetime of
 the object to which it points. Instead, a weak_ptr points to an object
@@ -833,3 +837,102 @@ defined as deleted.
 If a class has a usable copy constructor and no move constructor,
 objects will be “moved” by the copy constructor. Similarly for the
 copy-assignment operator and move-assignment.
+
+Overloaded functions that distinguish between moving and copying a
+parameter typically have one version that takes a const T& and one
+that takes a T&&.
+
+We can put a reference qualifier =&= or =&&= at the end of our
+function signatures, like =operator== to indicate that only lvalue or
+rvalues can be used in a statement containing them. A function can be
+both const and reference qualified. In such cases, the reference
+qualifier must follow the const qualifier
+
+If a member function has a reference qualifier, all the versions of
+that member with the same parameter list must have reference
+qualifiers.
+* Chapter 14: Overloaded operations and conversions
+[2018-01-15 Mon 11:54]
+
+Operator overloading lets us define the meaning of an operator when
+applied to operand(s) of a class type.
+
+We can have overloaded operators that are member functions of a class
+and that are not. In the case where they are not, the left operand is
+bound to the left, or first, parameter and the right operand is bound
+to the right, or second, parameter. In the case of overloaded
+operators that are members of a class, the left operand is implicitly
+bound to the =this= pointer.
+
+An operator function must either be a member of a class or have at
+least one parameter of class type, we cannot redefine operators for
+the built-in or primitive types.
+
+Ordinarily, we “call” an overloaded operator function indirectly by
+using the operator on arguments of the appropriate type. However, we
+can also call an overloaded operator function directly in the same way
+that we call an ordinary function. We name the function,
+e.g. =operator+(...= and pass an appropriate number of arguments of
+the appropriate type.
+
+Ordinarily, the comma, address-of, logical AND, and logical OR
+operators should not be overloaded. Overloaded operators are treated
+as function calls, and therefore, their precedense or executions
+property differ from their standard behaviour.
+
+Guidelines to decide whether an overloaded operator should be a member
+or not:
+
+- The assignment (=), subscript ([]), call (()), and member access
+  arrow (->) operators must be defined as members.
+- The compound-assignment operators ordinarily ought to be
+  members. However, unlike assignment, they are not required to be
+  members.
+- Operators that change the state of their object or that are closely
+  tied to their given type—such as increment, decrement, and
+  dereference—usually should be members.
+- Symmetric operators—those that might convert either operand, such as
+  the arithmetic, equality, relational, and bitwise operators—usually
+  should be defined as ordinary nonmember functions.
+
+
+
+Input and output operators that conform to the conventions of the
+iostream library must be ordinary nonmember functions. These operators
+cannot be members of our own class. If they were, then the left-hand
+operand would have to be an object of our class type
+
+
+Ordinarily, if we have two objects, neither of which is less than the
+other, then we expect that those objects are equal.
+
+Assignment operators must, and ordinarily compound-assignment
+operators should, be defined as members. These operators should return
+a reference to the left-hand operand.
+
+If a class has a subscript operator, it usually should define two
+versions: one that returns a plain reference and the other that is a
+const member and returns a reference to const.
+
+Classes that define increment or decrement operators should define
+both the prefix and postfix versions. These operators usually should
+be defined as members.
+
+To be consistent with the built-in operators, the postfix operators
+should return the old (unincremented or undecremented) value. That
+value is returned as a value, not a reference.
+ 
+The overloaded arrow operator must return either a pointer to a class
+type or an object of a class type that defines its own operator arrow.
+
+Classes that overload the call operator allow objects of its type to
+be used as if they were a function. Because such classes can also
+store state, they can be more flexible than ordinary functions.
+
+Function objects are most often used as arguments to the generic
+algorithms. For example, we can use the library for_each algorithm (§
+10.3.2, p. 391) and our PrintString class to print the contents of a
+container:
+
+Under the hood, when we write a lambda, the compiler actually makes an
+anonymous class for us with the functional call operator overloaded.
