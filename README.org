@@ -22,6 +22,11 @@ exercises encountered in the book.
 | <2018-01-08 Mon> |  645 |
 | <2018-01-14 Sun> |  682 |
 | <2018-01-15 Mon> |  694 |
+| <2018-01-16 Tue> |  711 |
+| <2018-01-18 Thu> |  717 |
+| <2018-01-19 Fri> |  752 |
+| <2018-01-20 Sat> |  762 |
+| <2018-01-20 Sat> |  784 |
 
 * Chapter 02: Variables and Base Types
 [2017-12-05 Tue 13:03]
@@ -807,7 +812,7 @@ copied.
 
 To support move operations, the new standard introduced a new kind of
 reference, an rvalue reference. An rvalue reference is obtained by
-using a double ampersand instead of only one, i.e. =&&=.
+using a double ampersand instead of a single one, i.e. =&&=.
 
 Functions that return a nonreference type, along with the arithmetic,
 relational, bitwise, and postfix increment/decrement operators, all
@@ -936,3 +941,267 @@ container:
 
 Under the hood, when we write a lambda, the compiler actually makes an
 anonymous class for us with the functional call operator overloaded.
+
+We now know the many kinds of entities that act like functions (what
+we call 'callables'), but each of these have different types. Say we
+wanted to build a calculator program, and we wanted to use a map from
+char or string to function to store the operations. Initially, we
+might consider making the mapped type a function pointer, and this
+would work for "normal" functions and pointers to functions, but would
+not work, for example, with lambdas. To overcome this, the
+=<functional>= header provides the template =function<>=
+i.e. =function<int(int, int)>=, which makes it possible to have
+objects store any of the different callable types, as long as they
+share the same signature. It is important to note that we won't be
+able to use overloaded functions this way, since there would be
+ambiguity. In such cases we can wrap them in a lambda or assign them
+to the appropiate function pointer first.
+
+A conversion operator is a special kind of member function that
+converts a value of a class type to a value of some other type. A
+conversion function typically has the general form
+
+A conversion function must be a member function, may not specify a
+return type, and must have an empty parameter list. The function
+usually should be const.
+
+Usually, conversion operators cause more harm than good, with one
+exception, conversions to =bool=. However, this must almost always be
+declared as =explicit=.
+
+Ordinarily, it is a bad idea to define classes with mutual conversions
+or to define conversions to or from two arithmetic types.
+
+When two user-defined conversions are used, the rank of the standard
+conversion, if any, preceding or following the conversion function is
+used to select the best match.
+
+Needing to use a constructor or a cast to convert an argument in a
+call to an overloaded function frequently is a sign of bad design.
+* Chapter 15: Object-Oriented Programming
+[2018-01-19 Fri 20:50]
+
+OOP is based on three fundamental concepts:
+
+- data abstraction
+- inheritance
+- dynamic binding
+  
+
+
+In C++, the superclasses of a derived class are denoted in the class
+derivation list, after a colon in front of the class name. The
+elements in the class derviation list may have an access specifier, if
+=public= that would indicate that we can use objects of the derived
+class as if they were their superclass type.
+
+Derived classes must provide implementations for each virtual method
+in the super class. A derived class may include the =virtual= keyword
+or not, it is not required. The new standard lets a derived class
+explicitly note that it intends a member function to override a
+virtual that inherits, by specifying the keyword =override= after its
+parameters.
+
+Dynamic binding is sometimes known as run-time binding.
+
+In C++, dynamic binding happens when a virtual function is called
+through a reference (or a pointer) to a base class.
+
+Classes used as the root of an inheritance hierarchy almost always
+define a virtual destructor.
+
+Derived classes frequently, but not always, override the virtual
+functions that they inherit. If a derived class does not override a
+virtual from its base, then, like any other member, the derived class
+inherits the version defined in its base class.
+
+The fact that a derived object contains subobjects for its base
+classes is key to how inheritance works.
+
+The base class is initialized first, and then the members of the
+derived class are initialized in the order in which they are declared
+in the class.
+
+It is essential to understand that each class defines its own
+interface. Interactions with an object of a class-type should use the
+interface of that class, even if that object is the base-class part of
+a derived object. As a result, derived-class constructors may not
+directly initialize the members of its base class. The constructor
+body of a derived constructor can assign values to its public or
+protected base-class members. Although it can assign to those members,
+it generally should not do so. Like any other user of the base class,
+a derived class should respect the interface of its base class by
+using a constructor to initialize its inherited members.
+
+The base class initiatilization list should not be written in forward
+declarations.
+
+We can prevent a class from being extended by following its name with
+the keyword =final=.
+
+We can bind a pointer or reference to a base-class type to an object
+of a type derived from that base class. For example, we can use a
+Quote& to refer to a Bulk_quote object, and we can assign the address
+of a Bulk_quote object to a Quote*
+
+A function that is virtual in a base class is implicitly virtual in
+its derived classes. When a derived class overrides a virtual, the
+parameters in the base and derived classes must match exactly.
+
+The =keyword= override is there to help us find bugs when we think we
+are overriding a base membe function but in fact we are wrong, perhaps
+because of different function parameters. Without the =override=
+keyword, the overloaded version of the function is valid but not
+related to the base class.
+
+Virtual functions that have default arguments should use the same
+argument values in the base and derived classes.
+
+Using the =scope::= operator we can force to call the version of a
+virtual method that corresponds to any class in the hierarchy.
+
+A function is deemed =pure virtual= if it is followed by an == 0= in
+its declaration. A class with a =pure virtual= function is considered
+and abstract class, which defines an interface, and makes it
+impossible to instantiate members of said class.
+
+The accesibility specifier we use when declaring a class' superclasses
+has nothing to do with the ability of the members of the subclass
+to access the members of its superclass, access is gated by the
+access specifiers of the members in the superclass declaration.
+The specifier we use in the superclass list is there so that we say
+whether users of the subclass or further subclasses can access
+public or protected members.
+
+In the absence of inheritance, we can think of a class as having two
+different kinds of users: ordinary users and implementors. Ordinary
+users write code that uses objects of the class type; such code can
+access only the public (interface) members of the class. Implementors
+write the code contained in the members and friends of the class. The
+members and friends of the class can access both the public and
+private (implementation) sections.  Under inheritance, there is a
+third kind of user, namely, derived classes. A base class makes
+protected those parts of its implementation that it is willing to let
+its derived classes use. The protected members remain inaccessible to
+ordinary user code; private members remain inaccessible to derived
+classes and their friends.  Like any other class, a class that is used
+as a base class makes its interface members public . A class that is
+used as a base class may divide its implementation into those members
+that are accessible to derived classes and those that remain
+accessible only to the base class and its friends. An implementation
+member should be protected if it provides an operation or data that a
+derived class will need to use in its own implementation. Otherwise,
+implementation members should be private.
+ 
+Friendship is not inherited; each class controls access to its
+members.
+
+A derived class may provide a using declaration only for names it is
+permitted to access. That is, if the derived class inherits with
+=private= from a base class, but decides it wants a specific memeber
+to be avilable to further derived classes, it would use a =using
+Base::member= declaration in its protected section. If it wanted to
+make a member that is public in the base class available to all users,
+it owuld need to use a =using Base::member= declaration in its public
+section (since the =private= inheritance would have made all inherited
+members private by default).
+
+A derived-class member with the same name as a member of the base
+class hides direct use of the base-class member.
+
+If a derived class wants to make all the overloaded versions available
+through its type, then it must override all of them or none of them.
+
+When a derived class defines a copy or move operation, that operation
+is responsible for copying or moving the entire object, including
+base-class members.
+
+Because derived objects are “sliced down” when assigned to a base-type
+object, containers and types related by inheritance do not mix well.
+
+When we need a container that holds objects related by inheritance, we
+typically define the container to hold pointers (preferably smart
+pointers to the base class.
+
+During an example of a =Basket= class that managed a collection of
+=Quote=s, the authors use a multiset to store them. When they loop
+over the items in a multset, rather than increase the pointer with the
+increment unary operator they use =upper_bound=. The call to
+=upper_bound= returns the iterator that refers to the element just
+past the last one with the same key as in iter.
+
+It is useful to define members that clone and move the object for
+cases when we create other classes that operate on this objects, but
+we don't want our users to concern themselves with having to create
+shared pointers and the like. With these operations, the functions can
+take a Base class parameter, and call the virtual clone member.
+
+* My common mistakes
+[2018-01-20 Sat 23:56]
+
+** Attempting to assign variables in global scope
+[2018-01-20 Sat 23:56]
+In C++, you can only initialize variables in global, you can't assign
+them there.
+
+An example of me commiting this error was during exercise-15-20 where
+I attempted to write the following:
+
+#+BEGIN_SRC cpp
+// Exercise 15.20, page 762
+//
+// Write code to test your answers to the previous two exercises.
+//
+// Exercise 15.5
+//
+// Given the classes from page 612 and page 613, and assuming each
+// object has the type specified in the comments, determine which of
+// these assignments are legal. Explain why those that are illegal
+// aren’t
+//
+// Base *p = &d1; d1 has type Pub_Derv
+// p = &d2; d2 has type Priv Derv
+// p = &d3; d3 has type Prot_Derv
+// p = &dd1; dd1 has type Der_from_Public
+// p = &dd2; dd2 has type Der_from_Private
+// p = &dd3; dd3 has type Der_from_Protected
+
+class Base {
+};
+
+class Pub_Derv : public Base {
+};
+
+class Priv_Derv : private Base {
+};
+
+class Prot_Derv : protected Base {
+};
+
+class Derived_from_Public : public Pub_Derv {
+};
+
+class Derived_from_Private : public Priv_Derv {
+};
+
+class Derived_from_Protected : public Prot_Derv {
+};
+
+
+Pub_Derv d1;
+Pub_Derv d2;
+Pub_Derv d3;
+Derived_from_Public dd1;
+Derived_from_Private dd2;
+Derived_from_Protected dd3;
+
+p = &d2;
+p = &d3;
+p = &dd1;
+// p = &dd2; // Cannot do this as the Base class part of the object is private
+// p = &dd3; // Cannot do this because this is user code, not subclass code
+#+END_SRC
+ 
+When I should have made those assignments inside a function like
+=main=.
+
